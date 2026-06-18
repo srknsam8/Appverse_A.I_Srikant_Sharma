@@ -1,0 +1,54 @@
+/* Custom AppVerse Visual Theme */
+:root {
+  --bg-dark: #0c0a09; /* Midnight Stone */
+  --bg-card: rgba(28, 25, 23, 0.7);
+  --ai-glow: #f59e0b; /* Vibrant Amber */
+  --ai-glow-light: rgba(245, 158, 11, 0.15);
+  --text-main: #fafaf9;
+  --text-muted: #a8a29e;
+  --border-color: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* Custom Glass-morphism Layout Styles */
+.app-card-custom {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-card-custom:hover {
+  transform: translateY(-6px);
+  border-color: var(--ai-glow);
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
+}
+
+.ai-pill-tag {
+  background: var(--ai-glow-light);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Override Bootstrap's default dark text */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Let's also make that Matrix gray a bit brighter for readability */
+:root {
+  --text-muted: #a1a1aa; 
+}
