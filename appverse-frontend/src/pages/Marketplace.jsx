@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Badge, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
 import { getAllApplications } from '../services/api';
-import { Sparkles, Star } from 'lucide-react';
+import { Sparkles, Star, Download } from 'lucide-react'; // <-- Added Download import
 
 const Marketplace = () => {
   const [apps, setApps] = useState([]);
@@ -125,10 +125,19 @@ const Marketplace = () => {
                     <Badge bg="secondary">v{app.version}</Badge>
                   </div>
                   
-                  {/* Average Rating Star (Will show "No reviews" until the backend sends the average math) */}
-                  <div className="text-warning small fw-bold mb-3 d-flex align-items-center">
-                    <Star size={14} fill="currentColor" className="me-1" />
-                    {app.averageRating ? app.averageRating.toFixed(1) : 'No reviews'}
+                  {/* --- NEW: Metrics Row (Rating & Downloads) --- */}
+                  <div className="d-flex justify-content-start align-items-center mb-3 mt-2">
+                    {/* Rating */}
+                    <div className="text-warning small fw-bold d-flex align-items-center me-3">
+                      <Star size={14} fill="currentColor" className="me-1" />
+                      {app.averageRating ? app.averageRating.toFixed(1) : 'New'}
+                    </div>
+                    
+                    {/* Downloads */}
+                    <div className="text-info small fw-bold d-flex align-items-center">
+                      <Download size={14} className="me-1" />
+                      {app.downloadCount ? app.downloadCount.toLocaleString() : '0'} 
+                    </div>
                   </div>
 
                   {/* Description */}

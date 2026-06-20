@@ -11,19 +11,20 @@ import com.appverse.repository.ReviewRepository;
 import com.appverse.repository.UserRepository;
 import com.appverse.service.AiService;
 import com.appverse.service.ReviewService;
+import lombok.extern.slf4j.Slf4j; // <-- Added Logger Import
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j // <-- Added Logger Annotation
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
-    private final AiService aiService; // 1. Bring in the AI Machine
+    private final AiService aiService;
 
-    // 2. Add AiService to the Constructor Injection
     public ReviewServiceImpl(ReviewRepository reviewRepository, ApplicationRepository applicationRepository, UserRepository userRepository, AiService aiService) {
         this.reviewRepository = reviewRepository;
         this.applicationRepository = applicationRepository;
@@ -33,11 +34,19 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review addReview(ReviewDTO reviewDTO, Long customerId) {
+        log.info("Attempting to add new review for Application ID: {} by User ID: {}", reviewDTO.getApplicationId(), customerId);
+
         User customer = userRepository.findById(customerId)
-                .orElseThrow(() -> new UserNotFoundException("User not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Failed to add review. User not found with ID: {}", customerId);
+                    return new UserNotFoundException("User not found!");
+                });
 
         Application app = applicationRepository.findById(reviewDTO.getApplicationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Failed to add review. Application not found with ID: {}", reviewDTO.getApplicationId());
+                    return new ResourceNotFoundException("Application not found!");
+                });
 
         Review review = new Review();
         review.setRating(reviewDTO.getRating());
@@ -45,20 +54,30 @@ public class ReviewServiceImpl implements ReviewService {
         review.setUser(customer);
         review.setApplication(app);
 
-        // --- 3. THE AI INTEGRATION ---
-        // Only trigger the AI if the user actually typed a comment
+        // --- THE AI INTEGRATION ---
         if (reviewDTO.getComment() != null && !reviewDTO.getComment().trim().isEmpty()) {
+            log.info("Sending review comment to AI Service for sentiment analysis...");
             String sentimentResult = aiService.analyzeReviewSentiment(reviewDTO.getComment());
+            log.info("AI Sentiment Analysis completed. Result: {}", sentimentResult);
             review.setSentiment(sentimentResult);
         } else {
-            review.setSentiment("NEUTRAL"); // Default tag if there is no text
+            log.info("No comment provided in review. Skipping AI analysis and defaulting to NEUTRAL.");
+            review.setSentiment("NEUTRAL");
         }
 
-        return reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+        log.info("Successfully saved review ID: {} with sentiment: {}", savedReview.getId(), savedReview.getSentiment());
+        
+        return savedReview;
     }
 
     @Override
     public List<Review> getReviewsForApplication(Long applicationId) {
-        return reviewRepository.findByApplicationId(applicationId);
+        log.info("Fetching all reviews for Application ID: {}", applicationId);
+        
+        List<Review> reviews = reviewRepository.findByApplicationId(applicationId);
+        
+        log.info("Found {} reviews for Application ID: {}", reviews.size(), applicationId);
+        return reviews;
     }
 }

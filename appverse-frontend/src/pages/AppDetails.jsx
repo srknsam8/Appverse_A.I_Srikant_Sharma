@@ -89,6 +89,9 @@ const AppDetails = () => {
         // 4. Reset the button back to normal after 3 seconds
         setTimeout(() => {
           setDownloadStatus('idle');
+          
+          // Optionally refresh app data to show updated count immediately
+          setApp(prev => ({...prev, downloadCount: (prev.downloadCount || 0) + 1}));
         }, 3000);
         
       }, 1500);
@@ -120,10 +123,24 @@ const AppDetails = () => {
           {/* Main App Details Card */}
           <Card className="bg-dark text-white border-secondary p-5 shadow-lg mb-5">
             <div className="d-flex justify-content-between align-items-start mb-4">
+              
+              {/* --- UPDATED: Header with Live Metrics --- */}
               <div>
                 <h1 className="fw-bold text-warning mb-2">{app.title}</h1>
-                <Badge bg="secondary" className="fs-6 mb-3">Version {app.version}</Badge>
+                <div className="d-flex align-items-center gap-3 mb-3">
+                  <Badge bg="secondary" className="fs-6">Version {app.version}</Badge>
+                  
+                  <span className="text-warning fw-bold d-flex align-items-center">
+                    <Star size={16} fill="currentColor" className="me-1" />
+                    {app.averageRating ? app.averageRating.toFixed(1) : 'New'}
+                  </span>
+                  
+                  <span className="text-info fw-bold d-flex align-items-center">
+                     ⬇ {app.downloadCount ? app.downloadCount.toLocaleString() : '0'} Downloads
+                  </span>
+                </div>
               </div>
+
               <h2 className="text-success fw-bold">
                 {app.price === 0 ? 'Free' : `$${app.price}`}
               </h2>
